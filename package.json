@@ -1,44 +1,48 @@
 {
-	"name": "p-wait-for",
-	"version": "2.0.0",
-	"description": "Wait for a condition to be true",
-	"license": "MIT",
-	"repository": "sindresorhus/p-wait-for",
-	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "sindresorhus.com"
-	},
-	"engines": {
-		"node": ">=6"
-	},
-	"scripts": {
-		"test": "xo && ava"
-	},
-	"files": [
-		"index.js"
-	],
-	"keywords": [
-		"promise",
-		"wait",
-		"for",
-		"waits",
-		"condition",
-		"poll",
-		"polling",
-		"boolean",
-		"async",
-		"await",
-		"promises",
-		"bluebird"
-	],
-	"dependencies": {
-		"p-timeout": "^2.0.1"
-	},
-	"devDependencies": {
-		"ava": "*",
-		"delay": "^3.0.0",
-		"time-span": "^2.0.0",
-		"xo": "*"
-	}
+  "name": "p-wavering-wait-for",
+  "version": "2.0.0",
+  "description": "Wait for a condition to be true with wavering interval",
+  "license": "MIT",
+  "repository": "pthrasher/p-wavering-wait-for",
+  "author": {
+    "name": "Philip Thrasher",
+    "email": "philipthrasher@gmail.com"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "scripts": {
+    "test": "jest test.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "promise",
+    "wait",
+    "for",
+    "waits",
+    "condition",
+    "poll",
+    "polling",
+    "boolean",
+    "async",
+    "await",
+    "promises",
+    "bluebird"
+  ],
+  "dependencies": {
+    "p-timeout": "^2.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "babel-core": "^7.0.0-0",
+    "babel-jest": "^23.6.0",
+    "babel-preset-jest": "^23.2.0",
+    "delay": "^3.0.0",
+    "jest": "^23.6.0",
+    "prettier": "*",
+    "time-span": "^2.0.0"
+  }
 }

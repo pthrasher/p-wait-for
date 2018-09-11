@@ -1,40 +1,89 @@
-import test from 'ava';
 import delay from 'delay';
 import timeSpan from 'time-span';
-import pWaitFor from '.';
+import pWaveringWaitFor from '.';
 
-test('waits for condition', async t => {
-	const ms = 200;
-	const end = timeSpan();
+const runAllPromises = () =>
+  new Promise((resolve) => process.nextTick(() => resolve(true)));
 
-	await pWaitFor(async () => {
-		await delay(ms);
-		return true;
-	});
+describe('pWaveringWaitFor', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
 
-	t.true(end() > (ms - 20));
-});
+  test('waits for condition', async () => {
+    jest.useRealTimers();
+    const ms = 200;
+    const end = timeSpan();
 
-test('rejects promise if condition rejects or throws', async t => {
-	await t.throws(pWaitFor(async () => {
-		throw new Error('foo');
-	}));
-});
+    await pWaveringWaitFor(async () => {
+      await delay(ms);
+      return true;
+    });
 
-test('waits no longer than `timeout` milliseconds before rejecting', async t => {
-	const end = timeSpan();
-	const ms = 200;
-	const maxWait = 100;
+    expect(end() > ms - 20).toBe(true);
+  });
 
-	await t.throws(pWaitFor(async () => {
-		await delay(ms);
-		return true;
-	}, {
-		interval: 20,
-		timeout: maxWait
-	}));
+  test('rejects promise if condition rejects or throws', async () => {
+    await expect(
+      pWaveringWaitFor(async () => {
+        throw new Error('foo');
+      }),
+    ).rejects.toThrow('foo');
+  });
 
-	const timeTaken = end();
-	t.true(timeTaken < ms);
-	t.true(timeTaken > (maxWait - 20));
+  test('waits random time between min and max', async () => {
+    let run = 0;
+    const minInterval = 100;
+    const maxInterval = 300;
+
+    const promise = pWaveringWaitFor(
+      () => {
+        if (++run <= 3) {
+          return Promise.resolve(false);
+        }
+        return Promise.resolve(true);
+      },
+      {
+        maxInterval,
+        minInterval,
+      },
+    );
+
+    await runAllPromises();
+    jest.runOnlyPendingTimers();
+    await runAllPromises();
+    jest.runOnlyPendingTimers();
+    await runAllPromises();
+    jest.runOnlyPendingTimers();
+
+    await promise;
+
+    expect(setTimeout).toHaveBeenCalledTimes(3);
+    expect(setTimeout.mock.calls[0][1]).toBeGreaterThanOrEqual(minInterval);
+    expect(setTimeout.mock.calls[0][1]).toBeLessThanOrEqual(maxInterval);
+
+    expect(setTimeout.mock.calls[1][1]).toBeGreaterThanOrEqual(minInterval);
+    expect(setTimeout.mock.calls[1][1]).toBeLessThanOrEqual(maxInterval);
+
+    expect(setTimeout.mock.calls[2][1]).toBeGreaterThanOrEqual(minInterval);
+    expect(setTimeout.mock.calls[2][1]).toBeLessThanOrEqual(maxInterval);
+  });
+
+  test('waits no longer than `timeout` milliseconds before rejecting', async () => {
+    const maxWait = 100;
+
+    expect(
+      pWaveringWaitFor(
+        async () => {
+          await delay(200);
+          return true;
+        },
+        {
+          timeout: maxWait,
+        },
+      ),
+    ).rejects.toThrow();
+
+    jest.advanceTimersByTime(300);
+  });
 });
